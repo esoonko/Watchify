@@ -8,6 +8,7 @@ import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import SocketIO from 'vue-socket.io'
 import cookies from 'vue-cookies'
+import * as VueGoogleMaps from 'vue2-google-maps'
 
 Vue.use(Vuetify, {
   iconfont: 'md'
@@ -16,6 +17,16 @@ Vue.use(new SocketIO({connection: 'http://localhost:8081'}))
 Vue.use(cookies)
 
 Vue.config.productionTip = false
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    region: 'SE',
+    language: 'SE',
+    key: '',
+    libraries: 'places'
+    // more can (should?) be added here!!
+  }
+})
 
 /* eslint-disable no-new */
 new Vue({
