@@ -51,7 +51,7 @@ export default {
       markerFixed: false,
       fixedCoordinates: null,
       zoom: 16,
-      alert: false,
+      alert: false
     }
   },
   mounted () {
@@ -81,12 +81,14 @@ export default {
         }
       }
       if (!this.markerFixed) {
+        // eslint-disable-next-line
         this.alert = false
         return {
           lat: parseFloat(this.map.getCenter().lat()),
           lng: parseFloat(this.map.getCenter().lng())
         }
       } else {
+        // eslint-disable-next-line
         this.alert = true
         return {
           lat: this.fixedCoordinates.lat,
