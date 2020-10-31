@@ -1,9 +1,6 @@
 <template>
   <v-app style="background-color: rgb(240, 240, 240)">
     <v-toolbar dark color="blue-grey darken-1">
-                  <div>
-                <p>{{ mapCoordinates.lat }} Latitude, {{ this.mapCoordinates.lng }} Longitude</p>
-            </div>
       <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn flat color="white">Watcher</v-btn>
@@ -21,15 +18,15 @@
     }"
     :zoom="zoom"
     :center="this.mapCoordinates"
-    @drag="handleDrag"
     map-type-id="terrain"
     style="width: 100%; height: 100%; margin-right: auto; margin-left: auto; margin-top: auto; margin-bottom: auto;"
     ref="mapRef"
       >
     <GmapMarker
       :position="this.markerCoordinates"
-      :clickable="false"
-      :draggable="true"
+      :clickable="true"
+      :draggable="false"
+      @click = "handleMarkerClicked"
       ref = "markerRef"
     ></GmapMarker>
   </GmapMap>
@@ -45,18 +42,15 @@ export default {
     return {
       map: null,
       marker: null,
-      zoom: 7
+      markerFixed: false,
+      fixedCoordinates: null,
+      zoom: 16
     }
   },
 
   mounted () {
-    // At this point, the child GmapMap has been mounted, but
-    // its map has not been initialized.
-    // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
-    // eslint-disable-next-line
-    this.$refs.markerRef.$mapPromise.then(marker => this.marker = marker)
   },
 
   computed: {
@@ -68,20 +62,29 @@ export default {
         }
       }
       return {
-        lat: this.map.getCenter().lat().toFixed(4),
-        lng: this.map.getCenter().lng().toFixed(4)
+        lat: this.map.getCenter().lat().toFixed(6),
+        lng: this.map.getCenter().lng().toFixed(6)
       }
     },
     markerCoordinates () {
-      if (!this.map) {
-        return {
-          lat: 59.3499507,
-          lng: 18.0679875
+      if (!this.markerFixed) {
+        if (!this.map) {
+          return {
+            lat: 59.3499507,
+            lng: 18.0679875
+          }
         }
       }
-      return {
-        lat: parseFloat(this.map.getCenter().lat().toFixed(4)),
-        lng: parseFloat(this.map.getCenter().lng().toFixed(4))
+      if (!this.markerFixed) {
+        return {
+          lat: parseFloat(this.map.getCenter().lat()),
+          lng: parseFloat(this.map.getCenter().lng())
+        }
+      } else {
+        return {
+          lat: this.fixedCoordinates.lat,
+          lng: this.fixedCoordinates.lng
+        }
       }
     }
   },
@@ -89,6 +92,16 @@ export default {
   methods: {
     redirect (route) {
       this.$router.push(route)
+    },
+    handleMarkerClicked () {
+      console.log(this.markerCoordinates)
+      if (this.markerFixed) {
+        this.markerFixed = false
+      } else {
+        this.markerFixed = true
+        this.fixedCoordinates = {lat: parseFloat(this.map.getCenter().lat()),
+          lng: parseFloat(this.map.getCenter().lng())}
+      }
     }
   }
 }
