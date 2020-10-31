@@ -1,6 +1,9 @@
 <template>
   <v-app style="background-color: rgb(240, 240, 240)">
     <v-toolbar dark color="blue-grey darken-1">
+                  <div>
+                <p>{{ mapCoordinates.lat }} Latitude, {{ this.mapCoordinates.lng }} Longitude</p>
+            </div>
       <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn flat color="white">Watcher</v-btn>
@@ -17,19 +20,17 @@
       disableDefaultUi: false,
     }"
     :zoom="zoom"
-    :center="mapCoordinates"
+    :center="this.mapCoordinates"
     map-type-id="terrain"
     style="width: 100%; height: 100%; margin-right: auto; margin-left: auto; margin-top: auto; margin-bottom: auto;"
     ref="mapRef"
       >
     <GmapMarker
-    :key="index"
-    v-for="(m, index) in markers"
-    :position="m.position"
-    :clickable="true"
-    :draggable="true"
-    @click="center=m.position"
-    />
+      :position="this.mapCoordinates"
+      :clickable="false"
+      :draggable="true"
+      ref = "markerRef"
+    ></GmapMarker>
   </GmapMap>
 </v-app>
 </template>
@@ -42,19 +43,19 @@ export default {
   data () {
     return {
       map: null,
-      markerCoordinates: {
-        latitude: 0,
-        longitude: 0
-      },
-      zoom: 16
+      marker: null,
+      zoom: 7
     }
   },
+
   mounted () {
     // At this point, the child GmapMap has been mounted, but
     // its map has not been initialized.
     // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
+    // eslint-disable-next-line
+    this.$refs.markerRef.$mapPromise.then(marker => this.marker = marker)
   },
 
   computed: {
@@ -66,8 +67,8 @@ export default {
         }
       }
       return {
-        lat: this.map.getCenter().lat().toFixed(4),
-        lng: this.map.getCenter().lng().toFixed(4)
+        lat: parseFloat(this.map.getCenter().lat()),
+        lng: parseFloat(this.map.getCenter().lng())
       }
     }
   },
