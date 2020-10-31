@@ -1,12 +1,9 @@
 <template>
   <v-app style="background-color: rgb(240, 240, 240)">
     <v-toolbar dark color="blue-grey darken-1">
-                  <div>
-                <p>{{ mapCoordinates.lat }} Latitude, {{ this.mapCoordinates.lng }} Longitude</p>
-            </div>
       <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat color="white">Watcher</v-btn>
+          <v-btn flat @click = "redirect('Watcher')" color="white">Watcher</v-btn>
         </v-toolbar-items>
     </v-toolbar>
   <GmapMap
@@ -26,9 +23,10 @@
     ref="mapRef"
       >
     <GmapMarker
-      :position="this.mapCoordinates"
-      :clickable="false"
-      :draggable="true"
+      :position="this.markerCoordinates"
+      :clickable="true"
+      :draggable="false"
+      @click = "handleMarkerClicked"
       ref = "markerRef"
     ></GmapMarker>
   </GmapMap>
@@ -43,19 +41,15 @@ export default {
   data () {
     return {
       map: null,
-      marker: null,
-      zoom: 7
+      markerFixed: false,
+      fixedCoordinates: null,
+      zoom: 16
     }
   },
 
   mounted () {
-    // At this point, the child GmapMap has been mounted, but
-    // its map has not been initialized.
-    // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
-    // eslint-disable-next-line
-    this.$refs.markerRef.$mapPromise.then(marker => this.marker = marker)
   },
 
   computed: {
@@ -67,8 +61,29 @@ export default {
         }
       }
       return {
-        lat: parseFloat(this.map.getCenter().lat()),
-        lng: parseFloat(this.map.getCenter().lng())
+        lat: this.map.getCenter().lat().toFixed(6),
+        lng: this.map.getCenter().lng().toFixed(6)
+      }
+    },
+    markerCoordinates () {
+      if (!this.markerFixed) {
+        if (!this.map) {
+          return {
+            lat: 59.3499507,
+            lng: 18.0679875
+          }
+        }
+      }
+      if (!this.markerFixed) {
+        return {
+          lat: parseFloat(this.map.getCenter().lat()),
+          lng: parseFloat(this.map.getCenter().lng())
+        }
+      } else {
+        return {
+          lat: this.fixedCoordinates.lat,
+          lng: this.fixedCoordinates.lng
+        }
       }
     }
   },
@@ -76,6 +91,16 @@ export default {
   methods: {
     redirect (route) {
       this.$router.push(route)
+    },
+    handleMarkerClicked () {
+      console.log(this.markerCoordinates)
+      if (this.markerFixed) {
+        this.markerFixed = false
+      } else {
+        this.markerFixed = true
+        this.fixedCoordinates = {lat: parseFloat(this.map.getCenter().lat()),
+          lng: parseFloat(this.map.getCenter().lng())}
+      }
     }
   }
 }
