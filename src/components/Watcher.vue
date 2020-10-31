@@ -37,6 +37,7 @@
 <script>
 // eslint-disable-next-line
 import RequestService from '@/services/RequestService'
+import * as VueGoogleMaps from 'vue2-google-maps'
 
 export default {
   data () {
@@ -56,7 +57,6 @@ export default {
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
   },
-
   computed: {
     mapCoordinates () {
       if (!this.map) {
@@ -78,31 +78,30 @@ export default {
     },
 
     getDirection: function () {
-      var directionsService = new google.maps.DirectionsService;
-      var directionsDisplay = new google.maps.DirectionsRenderer;
-      var origin = new google.maps.LatLng(59.346500, 18.067513);
-      var waypoints = [new google.maps.LatLng(59.345876, 18.069305),new google.maps.LatLng(59.344350, 18.066676),new google.maps.LatLng(59.345690, 18.062728)]
-      directionsDisplay.setMap(this.$refs.map.$mapObject);
+      var directionsService = new VueGoogleMaps.gmapApi.maps.DirectionsService()
+      var directionsDisplay = new VueGoogleMaps.gmapApi.maps.DirectionsRenderer()
+      var origin = new VueGoogleMaps.gmapApi.maps.LatLng(59.346500, 18.067513)
+      var waypoints = [new VueGoogleMaps.gmapApi.maps.LatLng(59.345876, 18.069305), new VueGoogleMaps.gmapApi.maps.LatLng(59.344350, 18.066676), new VueGoogleMaps.gmapApi.maps.LatLng(59.345690, 18.062728)]
+      directionsDisplay.setMap(this.$refs.map.$mapObject)
 
-      //google maps API's direction service
-      function calculateAndDisplayRoute(directionsService, directionsDisplay, origin, destination, waypoints) {
+      // google maps API's direction service
+      function calculateAndDisplayRoute (directionsService, directionsDisplay, origin, destination, waypoints) {
         directionsService.route({
           origin: origin,
           destination: destination,
           travelMode: 'walking',
           waypoints: waypoints,
           provideRouteAlternatives: true
-        }, function(response, status) {
+        }, function (response, status) {
           if (status === 'OK') {
             directionsDisplay.setDirections(response)
           } else {
             window.alert('Directions request failed due to ' + status)
           }
-        });
+        })
       }
       calculateAndDisplayRoute(directionsService, directionsDisplay, origin, origin, waypoints)
     }
-
 
   }
 }
