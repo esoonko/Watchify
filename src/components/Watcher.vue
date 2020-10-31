@@ -1,9 +1,6 @@
 <template>
   <v-app style="background-color: rgb(240, 240, 240)">
     <v-toolbar dark color="blue-grey darken-1">
-                  <div>
-                <p>{{ mapCoordinates.lat }} Latitude, {{ this.mapCoordinates.lng }} Longitude</p>
-            </div>
       <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn flat color="white">Watcher</v-btn>
@@ -20,17 +17,19 @@
       disableDefaultUi: false,
     }"
     :zoom="zoom"
-    :center="this.mapCoordinates"
+    :center="mapCoordinates"
     map-type-id="terrain"
     style="width: 100%; height: 100%; margin-right: auto; margin-left: auto; margin-top: auto; margin-bottom: auto;"
     ref="mapRef"
       >
     <GmapMarker
-      :position="this.mapCoordinates"
-      :clickable="false"
-      :draggable="true"
-      ref = "markerRef"
-    ></GmapMarker>
+    :key="index"
+    v-for="(m, index) in markers"
+    :position="m.position"
+    :clickable="true"
+    :draggable="true"
+    @click="center=m.position"
+    />
   </GmapMap>
 </v-app>
 </template>
@@ -43,19 +42,19 @@ export default {
   data () {
     return {
       map: null,
-      marker: null,
-      zoom: 7
+      markerCoordinates: {
+        latitude: 0,
+        longitude: 0
+      },
+      zoom: 16
     }
   },
-
   mounted () {
     // At this point, the child GmapMap has been mounted, but
     // its map has not been initialized.
     // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
-    // eslint-disable-next-line
-    this.$refs.markerRef.$mapPromise.then(marker => this.marker = marker)
   },
 
   computed: {
@@ -67,8 +66,8 @@ export default {
         }
       }
       return {
-        lat: parseFloat(this.map.getCenter().lat()),
-        lng: parseFloat(this.map.getCenter().lng())
+        lat: this.map.getCenter().lat().toFixed(4),
+        lng: this.map.getCenter().lng().toFixed(4)
       }
     }
   },
@@ -76,7 +75,35 @@ export default {
   methods: {
     redirect (route) {
       this.$router.push(route)
+    },
+
+    getDirection: function () {
+      var directionsService = new google.maps.DirectionsService;
+      var directionsDisplay = new google.maps.DirectionsRenderer;
+      var origin = new google.maps.LatLng(59.346500, 18.067513);
+      var waypoints = [new google.maps.LatLng(59.345876, 18.069305),new google.maps.LatLng(59.344350, 18.066676),new google.maps.LatLng(59.345690, 18.062728)]
+      directionsDisplay.setMap(this.$refs.map.$mapObject);
+
+      //google maps API's direction service
+      function calculateAndDisplayRoute(directionsService, directionsDisplay, origin, destination, waypoints) {
+        directionsService.route({
+          origin: origin,
+          destination: destination,
+          travelMode: 'walking',
+          waypoints: waypoints,
+          provideRouteAlternatives: true
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response)
+          } else {
+            window.alert('Directions request failed due to ' + status)
+          }
+        });
+      }
+      calculateAndDisplayRoute(directionsService, directionsDisplay, origin, origin, waypoints)
     }
+
+
   }
 }
 </script>
