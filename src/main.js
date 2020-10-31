@@ -20,7 +20,7 @@ Vue.use(VueGoogleMaps, {
   load: {
     region: 'SE',
     language: 'SE',
-    key: 'AIzaSyBQaEmouh3GZtBeBBxIyBvcnX7uXTVDamE',
+    key: '',
     libraries: 'places'
     // more can (should?) be added here!!
   }
