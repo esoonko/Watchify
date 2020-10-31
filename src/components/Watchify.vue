@@ -3,7 +3,7 @@
     <v-toolbar dark color="blue-grey darken-1">
       <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat color="white">Watcher</v-btn>
+          <v-btn flat @click = "redirect('Watcher')" color="white">Watcher</v-btn>
         </v-toolbar-items>
     </v-toolbar>
   <GmapMap
