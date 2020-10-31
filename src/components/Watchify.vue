@@ -41,7 +41,6 @@ export default {
   data () {
     return {
       map: null,
-      marker: null,
       markerFixed: false,
       fixedCoordinates: null,
       zoom: 16
