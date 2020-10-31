@@ -1,11 +1,18 @@
 <template>
   <v-app style="background-color: rgb(240, 240, 240)">
-    <v-toolbar dark color="blue-grey darken-1">
+  <v-toolbar dark color="blue-grey darken-1">
       <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn flat @click = "redirect('Watcher')" color="white">Watcher</v-btn>
         </v-toolbar-items>
-    </v-toolbar>
+    </v-toolbar>  
+     <v-alert
+      class="ma-0 pa-3"
+      v-model="alert"
+      dismissible
+      type="success"
+      GmapMap
+    >You have submitted a task!</v-alert>
   <GmapMap
     :options="{
       zoomControl: true,
@@ -26,6 +33,7 @@
       :position="this.markerCoordinates"
       :clickable="true"
       :draggable="false"
+      :icon="{url: require('.././assets/watcher_logo2.png'), scaledSize: {width: 35, height: 45}}"
       @click = "handleMarkerClicked"
       ref = "markerRef"
     ></GmapMarker>
@@ -36,22 +44,20 @@
 <script>
 // eslint-disable-next-line
 import RequestService from '@/services/RequestService'
-
 export default {
   data () {
     return {
       map: null,
       markerFixed: false,
       fixedCoordinates: null,
-      zoom: 16
+      zoom: 16,
+      alert: false,
     }
   },
-
   mounted () {
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
   },
-
   computed: {
     mapCoordinates () {
       if (!this.map) {
@@ -75,11 +81,13 @@ export default {
         }
       }
       if (!this.markerFixed) {
+        this.alert=false
         return {
           lat: parseFloat(this.map.getCenter().lat()),
           lng: parseFloat(this.map.getCenter().lng())
         }
       } else {
+        this.alert=true
         return {
           lat: this.fixedCoordinates.lat,
           lng: this.fixedCoordinates.lng
@@ -87,7 +95,6 @@ export default {
       }
     }
   },
-
   methods: {
     redirect (route) {
       this.$router.push(route)
