@@ -21,12 +21,13 @@
     }"
     :zoom="zoom"
     :center="this.mapCoordinates"
+    @drag="handleDrag"
     map-type-id="terrain"
     style="width: 100%; height: 100%; margin-right: auto; margin-left: auto; margin-top: auto; margin-bottom: auto;"
     ref="mapRef"
       >
     <GmapMarker
-      :position="this.mapCoordinates"
+      :position="this.markerCoordinates"
       :clickable="false"
       :draggable="true"
       ref = "markerRef"
@@ -67,8 +68,20 @@ export default {
         }
       }
       return {
-        lat: parseFloat(this.map.getCenter().lat()),
-        lng: parseFloat(this.map.getCenter().lng())
+        lat: this.map.getCenter().lat().toFixed(4),
+        lng: this.map.getCenter().lng().toFixed(4)
+      }
+    },
+    markerCoordinates () {
+      if (!this.map) {
+        return {
+          lat: 59.3499507,
+          lng: 18.0679875
+        }
+      }
+      return {
+        lat: parseFloat(this.map.getCenter().lat().toFixed(4)),
+        lng: parseFloat(this.map.getCenter().lng().toFixed(4))
       }
     }
   },
