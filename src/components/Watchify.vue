@@ -5,7 +5,7 @@
         <v-toolbar-items>
           <v-btn flat @click = "redirect('Watcher')" color="white">Watcher</v-btn>
         </v-toolbar-items>
-    </v-toolbar>  
+    </v-toolbar>
      <v-alert
       class="ma-0 pa-3"
       v-model="alert"
@@ -81,13 +81,13 @@ export default {
         }
       }
       if (!this.markerFixed) {
-        this.alert=false
+        this.alert = false
         return {
           lat: parseFloat(this.map.getCenter().lat()),
           lng: parseFloat(this.map.getCenter().lng())
         }
       } else {
-        this.alert=true
+        this.alert = true
         return {
           lat: this.fixedCoordinates.lat,
           lng: this.fixedCoordinates.lng
