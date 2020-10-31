@@ -22,14 +22,6 @@
     style="width: 100%; height: 100%; margin-right: auto; margin-left: auto; margin-top: auto; margin-bottom: auto;"
     ref="mapRef"
       >
-    <GmapMarker
-    :key="index"
-    v-for="(m, index) in markers"
-    :position="m.position"
-    :clickable="true"
-    :draggable="true"
-    @click="center=m.position"
-    />
   </GmapMap>
 </v-app>
 </template>
@@ -43,10 +35,6 @@ export default {
   data () {
     return {
       map: null,
-      markerCoordinates: {
-        latitude: 0,
-        longitude: 0
-      },
       zoom: 16
     }
   },
@@ -56,6 +44,7 @@ export default {
     // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
+    this.getDirection()
   },
   computed: {
     mapCoordinates () {
@@ -76,30 +65,29 @@ export default {
     redirect (route) {
       this.$router.push(route)
     },
-
-    getDirection: function () {
+      // google maps API's direction service
+    calculateAndDisplayRoute (directionsService, directionsDisplay, origin, destination, waypoints) {
+      directionsService.route({
+        origin: origin,
+        destination: destination,
+        travelMode: 'walking',
+        waypoints: waypoints,
+        provideRouteAlternatives: true
+      }, function (response, status) {
+        if (status === 'OK') {
+          window.alert('status === "OK"')
+          directionsDisplay.setDirections(response)
+        } else {
+          window.alert('Directions request failed due to ' + status)
+        }
+      })
+    },
+    getDirection () {
       var directionsService = new VueGoogleMaps.gmapApi.maps.DirectionsService()
       var directionsDisplay = new VueGoogleMaps.gmapApi.maps.DirectionsRenderer()
       var origin = new VueGoogleMaps.gmapApi.maps.LatLng(59.346500, 18.067513)
       var waypoints = [new VueGoogleMaps.gmapApi.maps.LatLng(59.345876, 18.069305), new VueGoogleMaps.gmapApi.maps.LatLng(59.344350, 18.066676), new VueGoogleMaps.gmapApi.maps.LatLng(59.345690, 18.062728)]
       directionsDisplay.setMap(this.$refs.map.$mapObject)
-
-      // google maps API's direction service
-      function calculateAndDisplayRoute (directionsService, directionsDisplay, origin, destination, waypoints) {
-        directionsService.route({
-          origin: origin,
-          destination: destination,
-          travelMode: 'walking',
-          waypoints: waypoints,
-          provideRouteAlternatives: true
-        }, function (response, status) {
-          if (status === 'OK') {
-            directionsDisplay.setDirections(response)
-          } else {
-            window.alert('Directions request failed due to ' + status)
-          }
-        })
-      }
       calculateAndDisplayRoute(directionsService, directionsDisplay, origin, origin, waypoints)
     }
 
