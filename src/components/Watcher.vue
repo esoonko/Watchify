@@ -60,14 +60,13 @@ export default {
       })
     },
     addRoute () {
+      // THINGS TO MODIFY: addRoute will take in all the routes, either as seperate variables or as a list. Origin point will NOT BE the first of the jobs as it will give away job position. As such origin point WILL ALWAYS be randomly generated.
       let gmapApi = VueGoogleMaps.gmapApi()
       let directionsService = new gmapApi.maps.DirectionsService()
       let directionsDisplay = new gmapApi.maps.DirectionsRenderer({ map: this.map }) // Set map directly on creation instead of using the following: directionsDisplay.setMap(this.map)
 
-      let origin = new gmapApi.maps.LatLng(59.346500, 18.067513)
-
-      // let waypoints = [new gmapApi.maps.LatLng(59.345876, 18.069305), new gmapApi.maps.LatLng(59.344350, 18.066676), new gmapApi.maps.LatLng(59.345690, 18.062728)]
-      let waypointsCoords = [[59.345876, 18.069305], [59.344350, 18.066676], [59.345690, 18.062728]]
+      // REPLACE HERE WITH COORDINATES FROM CLIENTS: START HERE
+      let waypointsCoords = [[59.346500, 18.067513], [59.345876, 18.069305], [59.344350, 18.066676], [59.345690, 18.062728]]
       let waypoints = []
       for (let i in waypointsCoords) {
         waypoints.push({
@@ -75,11 +74,15 @@ export default {
           stopover: false
         })
       }
+      // REPLACE END HERE
+      // Create origin as random from the job coordinates
+      let origin = this.generatePointRandom(waypoints[0].location)
+
       // New waypoints with additional stops
       let newWaypoints = []
       for (let i = 0; i < waypoints.length - 1; i++) {
         newWaypoints.push(waypoints[i])
-        newWaypoints.push(this.generatePointBetweenTwo(waypoints[i].location, waypoints[i + 1].location))
+        newWaypoints.push(this.generatePointBetweenTwo(waypoints[i].location, waypoints[i + 1].location, false))
       }
       newWaypoints.push(waypoints[waypoints.length - 1])
       console.log('Checking new waypoints')
@@ -87,7 +90,8 @@ export default {
       this.calculateAndDisplayRoute(gmapApi, directionsService, directionsDisplay, origin, newWaypoints, origin)
     },
 
-    generatePointBetweenTwo (coord1, coord2) {
+    // Generate random point between two given coordinate with max distance set. Returns object with loc and stopover
+    generatePointBetweenTwo (coord1, coord2, marker) {
       let gmapApi = VueGoogleMaps.gmapApi()
       // Max distance from point. Set to 400
       let maxDist = 400
@@ -102,9 +106,23 @@ export default {
       let addLat = randDist * Math.cos(perpAngle)
       let addLng = randDist * Math.sin(perpAngle)
       return {
-        location: new gmapApi.maps.LatLng(midLat + addLat, midLng + addLng)
-        // stopover: false
+        location: new gmapApi.maps.LatLng(midLat + addLat, midLng + addLng),
+        stopover: marker
       }
+    },
+
+    // Generate a single point randomly within a given radius from given coordinate. Return LatLng
+    generatePointRandom (coord) {
+      let gmapApi = VueGoogleMaps.gmapApi()
+      // Max distance from point. Set to 400
+      let maxDist = 400
+      // Select random distance
+      let randDist = (Math.random() * Math.floor(maxDist - 100) + 100) * 0.00001 * (Math.random() < 0.5 ? -1 : 1)
+      // Select random angle
+      let randAngle = (Math.random() * Math.floor(Math.PI * 2))
+      let addLat = randDist * Math.cos(randAngle)
+      let addLng = randDist * Math.sin(randAngle)
+      return new gmapApi.maps.LatLng(parseFloat(coord.lat()) + addLat, parseFloat(coord.lng()) + addLng)
     }
 
   },
