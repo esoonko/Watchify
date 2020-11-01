@@ -71,13 +71,33 @@ export default {
       let waypoints = []
       for (let i in waypointsCoords) {
         waypoints.push({
-          location: new gmapApi.maps.LatLng(waypointsCoords[i][0], waypointsCoords[i][1]),
-          stopover: false
+          location: new gmapApi.maps.LatLng(waypointsCoords[i][0], waypointsCoords[i][1])
+          // stopover: false
         })
       }
 
       this.calculateAndDisplayRoute(gmapApi, directionsService, directionsDisplay, origin, waypoints, origin)
+    },
+
+    generatePointBetweenTwo (coord1, coord2) {
+      let gmapApi = VueGoogleMaps.gmapApi()
+      let maxDist = 50
+      // Calculating perpendicular line to coord 1 and coord 2 to generate new coord
+      let perpAngle = Math.atan2(coord1.lng - coord2.lng, coord1.lat - coord2.lat)
+      // Midpoints
+      let midLat = (coord1.lat() + coord2.lat()) / 2
+      let midLng = (coord1.lng() + coord2.lng()) / 2
+      // Deciding the random distance taken from midpoint
+      let randDist = (Math.random() * Math.floor(maxDist - 20) + 20) * 0.001 * (Math.random() < 0.5 ? -1 : 1)
+      // Calculating Lat and Lng to be added
+      let addLat = randDist * Math.cos(perpAngle)
+      let addLng = randDist * Math.sin(perpAngle)
+      return {
+        locations: new gmapApi.maps.LatLng(midLat + addLat, midLng + addLng),
+        stopover: false
+      }
     }
+
   },
   mounted () {
     // At this point, the child GmapMap has been mounted, but its map has not been initialized.
