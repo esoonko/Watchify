@@ -75,19 +75,27 @@ export default {
         })
       }
       // REPLACE END HERE
-      // Create origin as random from the job coordinates
-      let origin = this.generatePointRandom(waypoints[0].location)
 
-      // New waypoints with additional stops
-      let newWaypoints = []
-      for (let i = 0; i < waypoints.length - 1; i++) {
-        newWaypoints.push(waypoints[i])
-        newWaypoints.push(this.generatePointBetweenTwo(waypoints[i].location, waypoints[i + 1].location, false))
+      // Check to see if there is any job available
+      if (waypoints.length < 1) {
+        alert('There is no job currently')
+      } else {
+        // Have atleast three waypoints
+        waypoints = this.generateMinWaypoints(waypoints)
+        // Create origin as random from the job coordinates
+        let origin = this.generatePointRandom(waypoints[0].location)
+
+        // New waypoints with additional stops
+        let newWaypoints = []
+        for (let i = 0; i < waypoints.length - 1; i++) {
+          newWaypoints.push(waypoints[i])
+          newWaypoints.push(this.generatePointBetweenTwo(waypoints[i].location, waypoints[i + 1].location, false))
+        }
+        newWaypoints.push(waypoints[waypoints.length - 1])
+        console.log('Checking new waypoints')
+        console.log(newWaypoints)
+        this.calculateAndDisplayRoute(gmapApi, directionsService, directionsDisplay, origin, newWaypoints, origin)
       }
-      newWaypoints.push(waypoints[waypoints.length - 1])
-      console.log('Checking new waypoints')
-      console.log(newWaypoints)
-      this.calculateAndDisplayRoute(gmapApi, directionsService, directionsDisplay, origin, newWaypoints, origin)
     },
 
     // Generate random point between two given coordinate with max distance set. Returns object with loc and stopover
@@ -123,6 +131,23 @@ export default {
       let addLat = randDist * Math.cos(randAngle)
       let addLng = randDist * Math.sin(randAngle)
       return new gmapApi.maps.LatLng(parseFloat(coord.lat()) + addLat, parseFloat(coord.lng()) + addLng)
+    },
+
+    // Generate waypoints depending on number of jobs so that there is at least three waypoints. Recursive
+    generateMinWaypoints (waypoints) {
+      if (waypoints.length < 2) {
+        waypoints.push({
+          location: this.generatePointRandom(waypoints[0].location),
+          stopover: false
+        })
+        waypoints = this.generateMinWaypoints(waypoints)
+        return waypoints
+      } else if (waypoints.length < 3) {
+        waypoints.push(this.generatePointBetweenTwo(waypoints[0].location, waypoints[1].location, false))
+        return waypoints
+      } else {
+        return waypoints
+      }
     }
 
   },
