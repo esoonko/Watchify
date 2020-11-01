@@ -4,6 +4,7 @@
       <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn flat @click = "redirect('Watchify')" color="white">Watchify</v-btn>
+          <v-btn flat @click = "addRoute()" color="white">Add route</v-btn>
         </v-toolbar-items>
     </v-toolbar>
   <GmapMap
@@ -38,13 +39,53 @@ export default {
       zoom: 16
     }
   },
+  methods: {
+    redirect (route) {
+      this.$router.push(route)
+    },
+    // google maps API's direction service
+    calculateAndDisplayRoute (gmapApi, directionsService, directionsDisplay, origin, waypoints, destination) {
+      directionsService.route({
+        origin: origin,
+        waypoints: waypoints,
+        destination: destination,
+        avoidHighways: true,
+        travelMode: gmapApi.maps.TravelMode.WALKING
+      }, function (response, status) {
+        if (status === gmapApi.maps.DirectionsStatus.OK) {
+          directionsDisplay.setDirections(response)
+        } else {
+          window.alert('Directions request failed due to ' + status)
+        }
+      })
+    },
+    addRoute () {
+      let gmapApi = VueGoogleMaps.gmapApi()
+      let directionsService = new gmapApi.maps.DirectionsService()
+      let directionsDisplay = new gmapApi.maps.DirectionsRenderer({ map: this.map }) // Set map directly on creation instead of using the following: directionsDisplay.setMap(this.map)
+
+      let origin = new gmapApi.maps.LatLng(59.346500, 18.067513)
+
+      // let waypoints = [new gmapApi.maps.LatLng(59.345876, 18.069305), new gmapApi.maps.LatLng(59.344350, 18.066676), new gmapApi.maps.LatLng(59.345690, 18.062728)]
+      let waypointsCoords = [[59.345876, 18.069305], [59.344350, 18.066676], [59.345690, 18.062728]]
+      let waypoints = []
+      for (let i in waypointsCoords) {
+        waypoints.push({
+          location: new gmapApi.maps.LatLng(waypointsCoords[i][0], waypointsCoords[i][1]),
+          stopover: false
+        })
+      }
+
+      this.calculateAndDisplayRoute(gmapApi, directionsService, directionsDisplay, origin, waypoints, origin)
+    }
+  },
   mounted () {
-    // At this point, the child GmapMap has been mounted, but
-    // its map has not been initialized.
+    // At this point, the child GmapMap has been mounted, but its map has not been initialized.
     // Therefore we need to write mapRef.$mapPromise.then(() => ...)
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
-    this.getDirection()
+  },
+  updated () {
   },
   computed: {
     mapCoordinates () {
@@ -59,38 +100,6 @@ export default {
         lng: this.map.getCenter().lng().toFixed(4)
       }
     }
-  },
-
-  methods: {
-    redirect (route) {
-      this.$router.push(route)
-    },
-      // google maps API's direction service
-    calculateAndDisplayRoute (directionsService, directionsDisplay, origin, destination, waypoints) {
-      directionsService.route({
-        origin: origin,
-        destination: destination,
-        travelMode: 'walking',
-        waypoints: waypoints,
-        provideRouteAlternatives: true
-      }, function (response, status) {
-        if (status === 'OK') {
-          window.alert('status === "OK"')
-          directionsDisplay.setDirections(response)
-        } else {
-          window.alert('Directions request failed due to ' + status)
-        }
-      })
-    },
-    getDirection () {
-      var directionsService = new VueGoogleMaps.gmapApi.maps.DirectionsService()
-      var directionsDisplay = new VueGoogleMaps.gmapApi.maps.DirectionsRenderer()
-      var origin = new VueGoogleMaps.gmapApi.maps.LatLng(59.346500, 18.067513)
-      var waypoints = [new VueGoogleMaps.gmapApi.maps.LatLng(59.345876, 18.069305), new VueGoogleMaps.gmapApi.maps.LatLng(59.344350, 18.066676), new VueGoogleMaps.gmapApi.maps.LatLng(59.345690, 18.062728)]
-      directionsDisplay.setMap(this.$refs.map.$mapObject)
-      calculateAndDisplayRoute(directionsService, directionsDisplay, origin, origin, waypoints)
-    }
-
   }
 }
 </script>
