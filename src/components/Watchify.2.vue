@@ -3,6 +3,8 @@
   <v-toolbar dark color="blue-grey darken-1">
       <v-spacer></v-spacer>
         <v-toolbar-items>
+          <v-btn flat @click = "redirect('Watchify1')" color="white">Client 1</v-btn>
+          <v-btn flat @click = "redirect('Watchify3')" color="white">Client 3</v-btn>
           <v-btn flat @click = "redirect('Watcher')" color="white">Watcher</v-btn>
         </v-toolbar-items>
     </v-toolbar>
@@ -43,17 +45,17 @@
 
 <script>
 // eslint-disable-next-line
-import RequestService from '@/services/RequestService'
 export default {
   data () {
     return {
       map: null,
       markerFixed: false,
-      fixedCoordinates: null,
+      wayPoint: null,
       zoom: 16,
       alert: false
     }
   },
+
   mounted () {
     // eslint-disable-next-line
     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
@@ -91,14 +93,17 @@ export default {
         // eslint-disable-next-line
         this.alert = true
         return {
-          lat: this.fixedCoordinates.lat,
-          lng: this.fixedCoordinates.lng
+          lat: this.wayPoint.lat,
+          lng: this.wayPoint.lng
         }
       }
     }
   },
   methods: {
     redirect (route) {
+      if (this.markerFixed) {
+        this.$cookies.set('wayPoint2', this.wayPoint)
+      }
       this.$router.push(route)
     },
     handleMarkerClicked () {
@@ -107,7 +112,7 @@ export default {
         this.markerFixed = false
       } else {
         this.markerFixed = true
-        this.fixedCoordinates = {lat: parseFloat(this.map.getCenter().lat()),
+        this.wayPoint = {lat: parseFloat(this.map.getCenter().lat()),
           lng: parseFloat(this.map.getCenter().lng())}
       }
     }
@@ -118,7 +123,3 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
-
-TODO: Remove all google markers
-TODO: Make it possible to add your own marker (see google marker)
-TOOD: Find out how you can generate a route from markers

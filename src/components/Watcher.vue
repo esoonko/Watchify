@@ -3,7 +3,9 @@
     <v-toolbar dark color="blue-grey darken-1">
       <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn flat @click = "redirect('Watchify')" color="white">Watchify</v-btn>
+          <v-btn flat @click = "redirect('Watchify1')" color="white">Client 1</v-btn>
+          <v-btn flat @click = "redirect('Watchify2')" color="white">Client 2</v-btn>
+          <v-btn flat @click = "redirect('Watchify3')" color="white">Client 3</v-btn>
           <v-btn flat @click = "addRoute()" color="white">Add route</v-btn>
         </v-toolbar-items>
     </v-toolbar>
@@ -29,18 +31,29 @@
 
 <script>
 // eslint-disable-next-line
-import RequestService from '@/services/RequestService'
 import * as VueGoogleMaps from 'vue2-google-maps'
 
 export default {
   data () {
     return {
       map: null,
-      zoom: 16
+      zoom: 16,
+      wayPoint1: this.$cookies.get('wayPoint1'),
+      wayPoint2: this.$cookies.get('wayPoint2'),
+      wayPoint3: this.$cookies.get('wayPoint3')
     }
   },
   methods: {
     redirect (route) {
+      if (route === 'Watchify1') {
+        this.$cookies.remove('wayPoint1')
+      }
+      if (route === 'Watchify2') {
+        this.$cookies.remove('wayPoint2')
+      }
+      if (route === 'Watchify3') {
+        this.$cookies.remove('wayPoint3')
+      }
       this.$router.push(route)
     },
     // google maps API's direction service
@@ -60,21 +73,18 @@ export default {
       })
     },
     addRoute () {
-      // THINGS TO MODIFY: addRoute will take in all the routes, either as seperate variables or as a list. Origin point will NOT BE the first of the jobs as it will give away job position. As such origin point WILL ALWAYS be randomly generated.
       let gmapApi = VueGoogleMaps.gmapApi()
       let directionsService = new gmapApi.maps.DirectionsService()
       let directionsDisplay = new gmapApi.maps.DirectionsRenderer({ map: this.map }) // Set map directly on creation instead of using the following: directionsDisplay.setMap(this.map)
-
-      // REPLACE HERE WITH COORDINATES FROM CLIENTS: START HERE
-      let waypointsCoords = [[59.346500, 18.067513], [59.345876, 18.069305], [59.344350, 18.066676], [59.345690, 18.062728]]
+      let waypointsCoords = [this.wayPoint1, this.wayPoint2, this.wayPoint3]
       let waypoints = []
+
       for (let i in waypointsCoords) {
         waypoints.push({
-          location: new gmapApi.maps.LatLng(waypointsCoords[i][0], waypointsCoords[i][1]),
+          location: new gmapApi.maps.LatLng(waypointsCoords[i]),
           stopover: false
         })
       }
-      // REPLACE END HERE
 
       // Check to see if there is any job available
       if (waypoints.length < 1) {
@@ -179,7 +189,3 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
-
-TODO: Remove all google markers
-TODO: Make it possible to add your own marker (see google marker)
-TOOD: Find out how you can generate a route from markers
