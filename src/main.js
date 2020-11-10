@@ -20,6 +20,7 @@ Vue.use(VueGoogleMaps, {
   load: {
     region: 'SE',
     language: 'SE',
+    // Insert Google API Key here
     key: '',
     libraries: 'places'
     // more can (should?) be added here!!
