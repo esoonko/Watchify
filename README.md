@@ -21,4 +21,4 @@ npm run build --report
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
 
 ## Google API Specific init
-The program functions on Google api key which should be stored in a api_key.txt file at the root of Watchify file.
+The program functions on Google api key which is read in at main.js.
